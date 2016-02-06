@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+  "name": "Codelab - Step 2",
+  "version": "1",
+  "icons": {
+    "128": "icon_128.png"
+  },
+  "permissions": ["storage",{"fileSystem": ["write", "directory"]}],
+  "app": {
+    "background": {
+      "scripts": ["background.js"]
+    }
+  },
+  "minimum_chrome_version": "28",
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://apis.google.com; object-src 'self'"
+}

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+	<%= include_gon %>
+
+    <title>Attachments</title>
+	  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+	  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+	  <%= csrf_meta_tags %>
+	<!-- Google Fonts -->
+	<link href='http://fonts.googleapis.com/css?family=Lily+Script+One' rel='stylesheet' type='text/css'>
+	<link href='http://fonts.googleapis.com/css?family=Roboto+Slab:400,700' rel='stylesheet' type='text/css'>
+
+    <!-- CSS -->
+    <!-- Bootstrap core CSS -->
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <!-- <link href="assets/css/bootstrap.min.css" rel="stylesheet" media="screen"> -->
+
+    <!-- Font Awesome CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" media="screen">
+    <!-- Animate css -->
+    <link href="assets/css/animate.css" rel="stylesheet" media="screen">
+    <!-- Custom styles CSS -->
+    <link href="assets/css/style.css" rel="stylesheet" media="screen">  
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.4/jquery.backstretch.min.js"></script>
+   	<script src="assets/js/circle-progress.js"></script>
+   	<script src="assets/js/attachments.js"></script>
+</head>
+<body>
+<script>
+	var JOBID = "";
+	var ACCOUNT_ID;
+	var IDENTITY_ID;
+	var CANCELED = false;
+	
+	$(function() {
+	 	$('.messages').circleProgress({
+		    value: 0.0,
+		    size: 150,
+		    emptyFill: 'rgba(192,192,192,0.3)',
+		    fill: {gradient: ["white"]}
+		}).on('circle-animation-progress', function(event, progress) {
+			
+		});
+		
+		$('.attachments').circleProgress({
+		    value: 0.0,
+		    size: 150,
+		    emptyFill: 'rgba(192,192,192,0.3)',
+		    fill: {gradient: ["white"]}
+		});
+		
+		$('.compress').circleProgress({
+		    value: 0.0,
+		    size: 150,
+		    emptyFill: 'rgba(192,192,192,0.3)',
+		    fill: {gradient: ["white"]}
+		});
+		
+		$('#search-form').submit(function (e) {
+			e.preventDefault();
+		});
+		
+    	$("#go-button").click(function() {
+			if($("#download").is(":visible")) {
+				$("#download").toggle();
+			}
+			
+			$('.messages').circleProgress('value', 0);
+		  	$('.attachments').circleProgress('value',  0);
+		  	$('.compress').circleProgress('value',  0);
+			$('.compress').find('strong').html('<i>0%</i>');
+
+		 	submit_button = $(this).context;
+			if($('#go-button')[0].value == "Go!") {
+				buttonCancel();
+		 		go();
+		 	} else {
+			 	$('#go-button')[0].value = "Go!";
+			 	buttonGo();
+			 	cancel();
+		 	}
+	 	});
+	 	
+	 	$("#logout").click(function() {
+		 	location.href='/signout';
+	 	});
+    });
+    
+
+	    
+</script>
+
+	<!-- Preloader 
+	<div id="preloader">
+	    <div id="status">
+	    	<div class="status-mes">loading...</div>
+	    </div>
+	</div>-->
+
+	<div class="layout">
+
+	<div class="container">
+		  <% flash.each do |key, value| %>
+		    <div class="alert alert-<%= key %>">
+		      <%= value %>
+		    </div>
+		  <% end %>
+		<div class="main">
+			<div class="overlay">
+				<div class="center-block">
+	
+					<!-- SIDEBAR USERPIC -->
+					<!-- END SIDEBAR USERPIC -->
+					<!-- SIDEBAR USER TITLE -->
+					<div class="profile-usertitle">
+						<div class="profile-usertitle-name">
+							<%= current_user.identities.first.name %>
+						</div>
+						<div class="profile-usertitle-job">
+							<%= current_user.identities.first.email %>
+						</div>
+					</div>
+					<!-- END SIDEBAR USER TITLE -->
+					<!-- SIDEBAR BUTTONS -->
+					<div class="profile-userbuttons">
+						<button type="button" id="logout" class="btn btn-primary btn-sm">Logout</button>
+						<button type="button" class="btn btn-danger btn-sm">Delete</button>
+					</div>
+				</div>
+					<div class="slogan">
+					</div>
+
+					  <%= form_tag("/backup", :method => "get", class: "navbar-form search-form", id: "search-form") do %>
+					   <div class="input-group" style="width: 100%">
+					      <input id="query" type="text" class="form-control"  placeholder="Search for attachments: ex. 'finance'">
+					      <span class="input-group-btn" style="width: 1px;">
+					        <input id="go-button" type="submit" style="width: 100px" class="btn btn-primary" value="Go!">
+					      </span>
+					    </div>
+					  <% end %>
+					  
+					<div class="more-links">
+					</div>
+					
+					<div id="circle-compress" class="centerme" style="display:none;">
+					<div class="compress circle">
+						<strong></strong>
+						<span>Compressing</span>
+					</div>
+					</div>
+					<div id="circles" class="centerme">
+					<div class="messages circle">
+						<strong></strong>
+						<span>Messages</span>
+					</div>
+					<div class="attachments circle">
+						<strong></strong>
+						<span>Attachments</span>
+					</div>
+					</div>
+					
+					<a id="button-href" href="#"><button style="display:none;" type="button" id="download" class="btn btn-lg btn-success download-button">Download<br><span class="glyphicon glyphicon-download"></span></button></a>
+
+				</div><!-- /.overlay -->
+			</div><!-- /.main -->
+		</div><!-- /.container -->
+	</div><!-- /.layout -->
+
+
+   	<!-- Javascript files -->
+   	<!-- jQuery -->
+   	<!-- Bootstrap JS -->
+   	<!-- Count Down - Time Circles  -->
+   	<script type="text/javascript" src="assets/js/TimeCircles.js"></script>
+   	<!-- Vegas - Fullscreen Backgrounds and Slideshows -->
+    <script src="assets/js/jquery.vegas.min.js"></script>
+   	<!-- Custom scripts -->
+   	<script type="text/javascript" src="assets/js/custom.js"></script>
+</body>

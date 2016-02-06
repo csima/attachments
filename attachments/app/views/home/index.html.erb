@@ -1,0 +1,131 @@
+<%= include_gon %>
+<% if current_user %>
+<%= link_to "Sign out", signout_path %>
+<%= current_user.name %>
+<br><br>
+
+<script>
+	 var JOBID = "";
+	 var ACCOUNT_ID;
+	 var IDENTITY_ID;
+	 var CANCELED = false;
+	 
+	 $(function() {
+	 	
+	 	$("#go-button").click(function() {
+		 	console.log($(this));
+		 	submit_button = $(this).context;
+			if(submit_button.value == "Go!") {
+				CANCELED = false;
+				submit_button.value = "Cancel";
+				// remove btn-success class & add btn-danger class
+				$(this).toggleClass("btn-success");
+		 		$(this).toggleClass("btn-danger");
+		 		go();
+		 	} else {
+			 	submit_button.value = "Go!";
+			 	CANCELED = true;
+			 	$(this).toggleClass("btn-danger");
+			 	$(this).toggleClass("btn-success");
+			 	console.log('canceled');
+			 	cancel();
+		 	}
+	 	});
+	 	
+		$('#search-form').submit(function (e) {
+			e.preventDefault();
+		});
+	  });
+	  
+	  function test() {
+	  	JOBID = gon.jobid;
+	  	ACCOUNT_ID = gon.account_id;
+	  	IDENTITY_ID = gon.identity_id;
+	  	
+	  	console.log('jobid:' + JOBID + ' accountid:' + ACCOUNT_ID + ' identityid:' + IDENTITY_ID);
+	  	checkStatus();
+      }
+      
+      function checkStatus() {
+	     //console.log('checking status');
+		     $.ajax({url: "/status/" + ACCOUNT_ID + "/" + IDENTITY_ID, success: function(result){
+		  	 	console.log(result);
+		  	 	var display = "Messages: Total " + result['message_count'] + " Downloaded " + result['message_completed_count']
+		  	 	var display_attachment = "Attachments: Total " + result['attachment_count'] + " Downloaded " + result['attachment_completed_count']
+		  	 	$('#status_update').html(display + "<br>" + display_attachment);
+				 if(result['message_completed_count'] == result['message_count'] &&
+				 	result['attachment_completed_count'] == result['attachment_count'] && result['message_count'] > 0) {
+					 	console.log('done!');
+					 	$('#status_update').html(display + "<br>" + display_attachment + " - Complete");
+				 } else {
+					if (CANCELED == false) {
+						setTimeout(continueExecution, 5000);
+					}
+				 }
+			 }});
+      }
+      
+      function continueExecution() {
+	      checkStatus();
+      }
+      
+      function cancel() {
+	    $.ajax({url: "/cancel",
+			success: function(result) {
+				console.log('response');
+			},
+			error: function() {
+				console.log('error');
+			},
+			complete: function() {
+				console.log('complete');
+			}
+		});
+      }
+      function go() {
+	  	query = $("#query").val();
+		$.ajax({url: "/backup?query=" + query,
+			success: function(result) {
+				//console.log('response');
+			},
+			error: function() {
+				//console.log('error');
+			},
+			complete: function() {
+				console.log('complete');
+				test();
+			}
+		});
+      }
+     
+</script>
+<% if signed_in? %>
+  <% current_user.identities.each do |identity| %>
+  <li><%= link_to "#{identity.provider}:#{identity.email}", "/home/#{identity.uid}/view" %></li>
+  <% end %>
+<% end %>
+  <li><%= link_to 'Add Google Account', '/auth/google_oauth2' %></li>
+	  	  
+<% @identity = current_user.identities.first %>
+<% if @identity.nil? == false %>
+	
+	  <%= form_tag("/backup", :method => "get", class: "navbar-form", id: "search-form") do %>
+	   <div class="input-group">
+	      <input id="query" type="text" class="form-control" placeholder="Search for...">
+	      <span class="input-group-btn">
+	        <input id="go-button" type="submit" class="btn btn-success" value="Go!">
+	      </span>
+	    </div>
+	  <% end %>
+  
+<% else %>
+	No identity selected
+<% end %>
+<% else %>
+<%= link_to "Sign in with Google", "/auth/google_oauth2" %>
+<% end %>
+<br>Status: <div id="status_update"></div>
+<br>
+<% if @identity.nil? == false %>
+<%= @identity.inspect %>
+<% end %>

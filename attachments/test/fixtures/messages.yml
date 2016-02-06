@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  messageid: 
+  accountid: 
+  identityid: 
+  downloaded: false
+
+two:
+  messageid: 
+  accountid: 
+  identityid: 
+  downloaded: false

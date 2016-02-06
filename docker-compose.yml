@@ -1,0 +1,23 @@
+# db:
+#   image: postgres:9.4.1
+#   ports:
+#     - "5432:5432"
+
+web:
+  build: ./attachments
+  command: bin/rails server --port 3000 --binding 0.0.0.0
+  ports:
+    - "3000:3000"
+  links:
+    - redis:db
+#  volumes:
+#    - .:/myapp
+
+worker:
+  build: ./sidekiq
+  links:
+    - redis:db
+    
+redis:
+  build: ./redis
+  container_name: redis

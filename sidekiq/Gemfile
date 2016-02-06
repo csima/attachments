@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+gem 'sidekiq'
+gem 'sidekiq-status'
+gem 'logger'
+gem 'pry'
+gem 'google-api-client', '0.8.2'
+gem 'aws-sdk'
