@@ -1,3 +1,5 @@
+require 'logglier'
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -38,4 +40,6 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+  #config.logger = Logglier.new("https://logs-01.loggly.com/inputs/38ac8b1e-085a-4515-ade2-f9c0571406f6/tag/ruby/", :threaded => true)
+
 end

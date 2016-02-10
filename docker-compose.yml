@@ -15,8 +15,8 @@ web:
 
 worker:
   build: ./sidekiq
-  links:
-    - redis:db
+#  links:
+#    - redis:db
     
 redis:
   build: ./redis

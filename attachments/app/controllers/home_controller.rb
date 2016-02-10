@@ -46,12 +46,22 @@ class HomeController < ApplicationController
 	  render :json => {'status' => 'OK'}
   end
   
-  def compress
-	  jobid = Sidekiq::Client.push('class' => 'CompressWorker', 'args' => [{'account_id' => current_user.id, 'identity_id' => current_user.identities.first.uid}])
-	  render :json => {'jobid' => jobid}
-  end
+	def compress
+		redis_url = ENV['REDIS']
+		Sidekiq.configure_client do |config|
+			config.redis = { :namespace => 'zip', :url => redis_url + '/1' }
+		end
+		
+		jobid = Sidekiq::Client.push('class' => 'CompressWorker', 'args' => [{'account_id' => current_user.id, 'identity_id' => current_user.identities.first.uid}])
+		render :json => {'jobid' => jobid}
+	end
 
   def save_attachments
+	  	redis_url = ENV['REDIS']
+		Sidekiq.configure_client do |config|
+			config.redis = { :namespace => 'zip', :url => redis_url + '/1' }
+		end
+		
 	  jobid = Sidekiq::Client.push('class' => 'S3DownloadControllerWorker', 'args' => [{'account_id' => current_user.id, 'identity_id' => current_user.identities.first.uid}])
 	  render :json => {'jobid' => jobid}
   end
@@ -69,22 +79,60 @@ class HomeController < ApplicationController
   def save_status
 	  account_id = current_user.id
 	  identity_id = current_user.identities.first.uid
-	  
-	  list_total = $redis.get("#{account_id}:#{identity_id}:zip:list_total")
-	  current_count = $redis.llen("#{account_id}:#{identity_id}:zip:list")
+	  redis_url = ENV['REDIS']
+
+	  #$redis = Redis::Namespace.new("zip", :redis => Redis.new(:url => ENV['REDIS'] + '/1'))
+		Sidekiq.configure_client do |config|
+			config.redis = { :namespace => 'zip', url: redis_url + '/1'}
+		end
+		list_total = Sidekiq.redis do |conn|
+			conn.get("#{account_id}:#{identity_id}:zip:list_total")
+		end
+		current_count = Sidekiq.redis do |conn|
+			conn.llen("#{account_id}:#{identity_id}:zip:list")
+		end
+	  #list_total = $redis.get("#{account_id}:#{identity_id}:zip:list_total")
+	  #current_count = $redis.llen("#{account_id}:#{identity_id}:zip:list")
 	  
 	  render :json => {'total' => list_total, 'count' => current_count}
   end
   
-	def backup
-		redis_url = ENV['DB_PORT'].sub("tcp","redis")
+  def clear_redis(account_id, identity_id)
+	  	prefix = "#{account_id}:#{identity_id}"
+	  	redis_url = ENV['REDIS']
+
+		Sidekiq.configure_client do |config|
+		    config.redis = { :namespace => 'zip', url: redis_url + '/1'}
+		end
+ 		Sidekiq.redis do |conn|
+	  	    conn.del("#{prefix}:zip:list_total")
+	  		conn.del("#{prefix}:zip:list")
+	  		conn.del("#{prefix}:zip:list_complete")
+  		end
+  		
 		Sidekiq.configure_client do |config|
 		    config.redis = { url: redis_url }
 		end
-
+  		Sidekiq.redis do |conn|
+	  		conn.del("#{prefix}:cancel")
+	  		conn.del("#{prefix}:messageids")
+	  		conn.del("#{prefix}:attachmentids")
+	  		conn.del("#{prefix}:messageids_list")
+	  		conn.del("#{prefix}:attachmentids_list")
+  		end
+  end
+  
+	def backup
+		redis_url = ENV['REDIS']
+		account_id = current_user.id
+		identity_id = current_user.identities.first.uid
+		Sidekiq.configure_client do |config|
+		    config.redis = { url: redis_url }
+		end
+		
+		clear_redis(account_id, identity_id)
 		puts params
-		#@account_id = params[:account_id]
-		#@identity_id = params[:identity_id]
+
 		@identity = current_user.identities.first
 	
 		query = params[:query]

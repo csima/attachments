@@ -1,4 +1,4 @@
-redis_url = ENV['DB_PORT'].sub("tcp","redis")
+redis_url = ENV['REDIS']
 
 Sidekiq.configure_server do |config|
   config.server_middleware do |chain|

@@ -1,1 +1,1 @@
-$redis = Redis.new(:url => (ENV['DB_PORT'].sub("tcp","redis")))
+$redis = Redis.new(:url => ENV['REDIS'])

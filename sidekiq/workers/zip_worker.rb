@@ -52,7 +52,7 @@ class S3DownloadWorker
 			# Set access/modification timestamp to email
 			File.utime(DateTime.parse(timestamp).to_time, DateTime.parse(timestamp).to_time, "#{account_id}/#{identity_id}/#{filename}")
 		rescue => e
-			puts "Something went wrong when trying to retrieve a file from s3: (key)#{key} #{e}"
+			logger.error "Something went wrong when trying to retrieve a file from s3: (key)#{key} #{e}"
 		end
 		
 		Sidekiq.redis{|conn| conn.lpush("#{redis_prefix}:zip:list",key)}

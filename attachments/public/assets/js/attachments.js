@@ -1,4 +1,5 @@
 function buttonGo() {
+		log("buttonGo called");
 		$("#go-button")[0].value = "Go!";
 		CANCELED = true;
 		$("#go-button").toggleClass("btn-danger");
@@ -6,18 +7,21 @@ function buttonGo() {
 	}
 	
 	function buttonCancel() {
+		log("buttonCancel called");
 		CANCELED = false;
 		$("#go-button")[0].value = "Cancel";
 		$("#go-button").toggleClass("btn-primary");
 		$("#go-button").toggleClass("btn-danger");
 	}
       function complete() {
+	      log("complete called");
 	      console.log('attachments downloaded complete');
 	  	  $("#go-button").prop("disabled",true);
 	      save();
       }
 	
 	  function test() {
+		log("test called");
 	  	JOBID = gon.jobid;
 	  	ACCOUNT_ID = gon.account_id;
 	  	IDENTITY_ID = gon.identity_id;
@@ -25,6 +29,7 @@ function buttonGo() {
       }
       
       function checkStatus() {
+	      log("checkStatus called");
 	     //console.log('checking status');
 		     $.ajax({url: "/status/" + ACCOUNT_ID + "/" + IDENTITY_ID, success: function(result){
 		  	 	console.log(result);
@@ -55,10 +60,12 @@ function buttonGo() {
       }
       
       function continueExecution() {
+	      log("continueExecution called");
 	      checkStatus();
       }
       
       function cancel() {
+	    log("cancel called");
 	    $.ajax({url: "/cancel",
 			success: function(result) {
 				console.log('response');
@@ -72,6 +79,7 @@ function buttonGo() {
 		});
       }
       function go() {
+	    log("go called");
 	  	query = $("#query").val();
 		$.ajax({url: "/backup?query=" + query,
 			success: function(result) {
@@ -87,6 +95,7 @@ function buttonGo() {
 	  }
 	  
 	  function save() {
+		log("save called");
 		// Make the message/attachments circles invisible
 		$("#circles").toggle();
 		// Show compression circle
@@ -108,6 +117,7 @@ function buttonGo() {
 	  }
 	  
 	  function compress() {
+		log("compress called");
 		$('.compress').circleProgress('value', 0);
 		$('.compress').find('strong').html('<i>0%</i>');
 		$(".compress span").text('Compressing');
@@ -126,19 +136,27 @@ function buttonGo() {
 		});
 	  }
 	  
+	  function log(data) {
+		  console.log(data);
+	  }
+	  
 	  function continueCompressStatus() {
+		  log("continueCompressStatus called");
 		  checkCompressStatus();
 	  }
 	  
 	  function continueSaveStatus() {
+		  log("continueSaveStatus called");
 		  checkSaveStatus();
 	  }
 	  
 	  function saveComplete() {	  
+		  log("saveComplete called");
 		  compress();
 	  }
 	  
 	  function compressionComplete() {
+		  log("compressionComplete called");
 		  $("#circle-compress").toggle();
 		  $("#circles").toggle();
 		  $("#download").toggle();
@@ -147,6 +165,7 @@ function buttonGo() {
 	  }
 	  
 	  function checkSaveStatus() {
+		     log("checkSaveStatus called");
 		     $.ajax({url: "/save_status/" + JOBID, success: function(result){
 			     	console.log(result);
 			     	status = parseInt(result['count']);
@@ -167,6 +186,7 @@ function buttonGo() {
       }
       
       function checkCompressStatus() {
+	         log("checkCompressStatus called");
 		     $.ajax({url: "/compress_status/" + JOBID, success: function(result){
 			     	console.log(result);
 			     	percent = parseInt(result['at']);

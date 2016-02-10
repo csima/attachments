@@ -46,11 +46,15 @@ module GmailAPI
 		def s3_mass_delete(s3key)
 			bucket = Aws::S3::Bucket.new(client: @s3client, name: @s3_bucket)
 			s3keys = bucket.objects(prefix: s3key).collect(&:key)
+			if s3keys.count == 0
+				return
+			end
+			
 			new_s3keys = Array.new
 			s3keys.each do |key|
 				new_s3keys.push({key: key})
 			end
-		
+
 			if new_s3keys.count > 1000
 				keyarray = new_s3keys.each_slice(1000)
 				keyarray.each do |array|
@@ -59,7 +63,7 @@ module GmailAPI
 			else
 				resp = @s3client.delete_objects({bucket: @s3_bucket, delete: {objects: new_s3keys, quiet: true}})
 			end
-			
+
 			if resp.errors.count > 0
 				puts "Error in s3 mass delete: #{resp.errors}"
 				raise

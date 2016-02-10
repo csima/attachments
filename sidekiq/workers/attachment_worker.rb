@@ -10,6 +10,5 @@ class AttachmentWorker < Worker
 			attachments.push(AttachmentObject.from_json(attachment))
 		end
 		get_attachments(attachments)
-		puts "Grabbed #{attachments.count} attachments"
 	end
 end

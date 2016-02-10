@@ -87,6 +87,8 @@ GEM
       thor (>= 0.14, < 2.0)
     json (1.8.3)
     jwt (1.5.2)
+    logglier (0.5.0)
+      multi_json (~> 1)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -222,6 +224,7 @@ DEPENDENCIES
   jbuilder (~> 2.0)
   jquery-rails
   json
+  logglier
   omniauth
   omniauth-google-oauth2
   pry
