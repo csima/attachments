@@ -16,6 +16,8 @@ gem 'sidekiq-status'
 gem 'redis'
 gem 'redis-namespace'
 gem 'sinatra', :require => nil
+gem 'lograge'
+gem 'rollbar'
 
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'

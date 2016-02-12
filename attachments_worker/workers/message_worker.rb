@@ -13,9 +13,9 @@ class MessageWorker < Worker
 			save_redis_list("#{@account_id}:#{@identity_id}:attachmentids_list", attachment.id)
 			json_attachments.push(attachment.to_json)
 		end
-		#attachment_array = split_arrays(json_attachments, 25)
-		json_attachments.each do |attachment|
-			args['attachments'] = [attachment]
+		attachment_array = split_arrays(json_attachments, 25)
+		attachment_array.each do |attachment|
+			args['attachments'] = attachment
 			AttachmentWorker.perform_async(args)
 		end
 	end

@@ -24,11 +24,18 @@ class Identity < ActiveRecord::Base
   def refresh!
     response = request_token_from_google
     data = JSON.parse(response.body)
-
+	#binding.pry
     if data['error'].nil? == false
-	    puts data
-	    binding.pry
-	    raise
+	    error = "error: Refresh token failed! #{data}"
+	    puts error
+	    
+	    if data['error'] == "unauthorized_client"
+		    puts "Removing refresh_token"
+		    self.refresh_token = ""
+		    self.save
+		end
+		
+	    raise error
 	end
 	
     update_attributes(

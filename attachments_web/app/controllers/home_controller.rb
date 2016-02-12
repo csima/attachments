@@ -41,7 +41,14 @@ class HomeController < ApplicationController
   def cancel_job
 	  identity_id = current_user.identities.first.uid
 	  account_id = current_user.id
-	  
+# 	  redis_url = ENV['REDIS']
+# 
+# 		Sidekiq.configure_client do |config|
+# 		    config.redis = { url: redis_url }
+# 		end
+# 		Sidekiq.redis do |conn|
+# 			conn.set("#{account_id}:#{identity_id}:cancel", "true")
+# 		end
 	  $redis.set("#{account_id}:#{identity_id}:cancel", "true")
 	  render :json => {'status' => 'OK'}
   end

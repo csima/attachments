@@ -2,6 +2,8 @@ class SessionsController < ApplicationController
     layout false
 
 	def create
+		logger.info "Create Session: #{request.env['omniauth.auth']}"
+		
 		auth = request.env['omniauth.auth']
 	# Find an identity here
 	  @identity = Identity.find_with_omniauth(auth)
@@ -30,6 +32,12 @@ class SessionsController < ApplicationController
 	    if @identity.user.present?
 	      # The identity we found had a user associated with it so let's 
 	      # just log them in here
+	      refresh_token = auth["credentials"]["refresh_token"]
+	      if refresh_token.nil? == false || refresh_token.blank? == false
+	      	@identity.refresh_token = refresh_token
+	      	@identity.save
+     	  end
+	      
 	      self.current_user = @identity.user
 	      redirect_to "/home", notice: "Signed in!"
 	    else
@@ -43,6 +51,7 @@ class SessionsController < ApplicationController
 	end
 
   def create_identity(auth)
+	  logger.info "Creating Identity: #{auth}"
     identity = Identity.where(:provider => auth["provider"], :uid => auth["uid"]).first_or_initialize(
       :refresh_token => auth["credentials"]["refresh_token"],
       :access_token => auth["credentials"]["token"],
@@ -60,6 +69,7 @@ class SessionsController < ApplicationController
   end
 
   def create_user(auth)
+	  logger.info "Creating user: #{auth}"
 	user = User.create_with_omniauth(auth)  
     url = session[:return_to] || root_path
     session[:return_to] = nil

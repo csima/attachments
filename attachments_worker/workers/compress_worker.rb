@@ -2,6 +2,7 @@ require 'pty'
 require 'aws-sdk'
 require 'pry'
 require 'fileutils'
+require 'filesize'
 
 class CompressWorker
 	include Sidekiq::Worker
@@ -19,6 +20,8 @@ class CompressWorker
   	folder = "#{account_id}/#{identity_id}"
 	puts "Compress Worker!"  
 	cmd = "cd #{account_id};tar -c #{identity_id} --remove-files | pv -n --size `du -cshm #{identity_id} | grep total | cut -f1`m | pigz > #{identity_id}.tgz" 
+	#cmd = "cd #{account_id};tar -c #{identity_id} | pv -n --size `du -cshm #{identity_id} | grep total | cut -f1`m | pigz > #{identity_id}.tgz" 
+
 	begin
 	  PTY.spawn( cmd ) do |stdout, stdin, pid|
 	    begin
@@ -37,6 +40,9 @@ class CompressWorker
 	  puts "The child process exited!"
 	end
 	
+	zip_location = "#{account_id}/#{identity_id}.tgz"
+	filesize = "#{File.size(zip_location)} B"
+	puts "Upload #{folder}/#{identity_id}.tgz to s3 size:#{Filesize.from(filesize).pretty}"
 	s3 = AmazonS3Client.new(AWS_ACCESSKEY, AWS_SECRETKEY, AWS_REGION, S3_URL, S3_BUCKET)
 	url = s3.upload_app("#{folder}/#{identity_id}.tgz",File.expand_path("#{account_id}/#{identity_id}.tgz"))
 	at 100, url

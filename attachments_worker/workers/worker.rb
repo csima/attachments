@@ -83,7 +83,7 @@ module GmailAPI
 				
 				url = obj.public_url
 				
-				@logger.info url
+				#@logger.info url
 				return url
 			rescue Aws::S3::Errors::ServiceError => e
 		  		puts e.message
@@ -122,6 +122,7 @@ module GmailAPI
 		end
 		
 		def to_json
+			begin
 			JSON.dump ({
 				:filename => @filename,
 				:data => @data,
@@ -130,10 +131,20 @@ module GmailAPI
 				:url => @url,
 				:date => @date
 			})
+			rescue => e
+				error = "JSON parsing error in AttachmentObject.to_json: #{e}"
+				logger.error error
+			end
 		end
 		
 		def self.from_json(string)
-			data = JSON.load string
+			begin
+				data = JSON.load string
+			rescue => e
+				error = "JSON parsing error in AttachmentObject.self.from_json: #{string} #{e}"
+				logger.error error
+				return
+			end
 			self.new(data['filename'],data['data'],data['id'],data['message_id'],data['url'],data['date'])
 		end
 	end
@@ -255,24 +266,35 @@ module GmailAPI
 			result = @client.execute(
 			:api_method => @api.users.messages.attachments.get,
 			:parameters => {'userId' => 'me', 'id' => attachment.id, 'messageId' => attachment.message_id})
-			data = JSON(result.body)
+			
+			begin
+				data = JSON(result.body)
+			rescue => e
+				error = "JSON parsing error in get_attachments: #{attachment.filename} #{attachment.id} #{result.body}"
+				logger.error error
+			end
 			
 			if data.nil?
-				puts "Response from gmail failed: #{attachment.filename}"
+				error = "Response from gmail failed: #{attachment.filename} #{attachment.message_id}"
+				puts error
+				raise error
 				#raise JobCancelException
-				binding.pry
+				#binding.pry
 			end
 			
 			if data['error'].nil? == false
-				puts data
-				binding.pry
+				error = "Gmail API error: get attachments(): #{attachment.filename} #{attachment.message_id} #{data}"
+				puts error
+				raise error
+				#binding.pry
 			end 
 			
 			begin
 				filedata = Base64.urlsafe_decode64(data['data'])
 			rescue => e
-				puts e
-				binding.pry
+				error = "Error in base64 decoding attachment data: #{attachment.filename} #{attachment.message_id}"
+				puts error
+				raise error
 			end
 			
 			attachment.url = result.response.env.url.to_s
@@ -280,9 +302,6 @@ module GmailAPI
 			
 			save_attachment_to_db(attachment, @account_id, @identity_id)
 			save_attachment_to_s3(attachment, @account_id, @identity_id)
-			
-			#save_attachment("#{ATTACHMENTS_PATH}/#{@identity_id}", attachment)
-			#print " #{attachment.filename} "
 		end
 	end
 	

@@ -6,6 +6,11 @@ RUN apt-get update && apt-get install -y --force-yes build-essential \
 	ruby ruby-dev pigz pv && apt-get clean
 RUN gem install bundler
 
+RUN locale-gen en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US.UTF-8
+
 COPY . /attachments/
 WORKDIR /attachments/
 RUN bundle install
