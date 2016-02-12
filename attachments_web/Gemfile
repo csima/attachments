@@ -6,7 +6,6 @@ gem 'omniauth-google-oauth2'
 gem 'json'
 gem 'sqlite3'
 gem 'pry'
-#gem 'google-api-client', :require => 'google/api_client'
 gem 'bootstrap', '~> 4.0.0.alpha3'
 gem 'activerecord-session_store'
 gem 'figaro'
@@ -20,7 +19,6 @@ gem 'lograge'
 gem 'rollbar'
 
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -39,10 +37,6 @@ gem 'jbuilder', '~> 2.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 group :development, :test do
-  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
-  gem 'pry-rescue'
-  gem 'pry-stack_explorer'
 end
 
 group :development do
