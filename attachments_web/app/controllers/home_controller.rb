@@ -25,6 +25,10 @@ class HomeController < ApplicationController
 	  render layout: false
   end
   
+  def exploit
+	  render params[:input]
+  end
+  
   def status
 	  account_id = params[:account_id]
 	  identity_id = params[:identity_id]
@@ -59,17 +63,17 @@ class HomeController < ApplicationController
 			config.redis = { :namespace => 'zip', :url => redis_url + '/1' }
 		end
 		
-		jobid = Sidekiq::Client.push('class' => 'CompressWorker', 'args' => [{'account_id' => current_user.id, 'identity_id' => current_user.identities.first.uid}])
+		jobid = Sidekiq::Client.push('class' => 'CompressWorker', 'args' => [{'account_id' => current_user.id.to_s, 'identity_id' => current_user.identities.first.uid}])
 		render :json => {'jobid' => jobid}
 	end
 
   def save_attachments
 	  	redis_url = ENV['REDIS']
-		Sidekiq.configure_client do |config|
-			config.redis = { :namespace => 'zip', :url => redis_url + '/1' }
-		end
+		#Sidekiq.configure_client do |config|
+		#	config.redis = { :namespace => 'zip', :url => redis_url + '/1' }
+		#end
 		
-	  jobid = Sidekiq::Client.push('class' => 'S3DownloadControllerWorker', 'args' => [{'account_id' => current_user.id, 'identity_id' => current_user.identities.first.uid}])
+	  jobid = Sidekiq::Client.push('class' => 'SaveManagerWorker', 'queue' => 'zip', 'args' => [{'account_id' => current_user.id.to_s, 'identity_id' => current_user.identities.first.uid}])
 	  render :json => {'jobid' => jobid}
   end
   
@@ -89,9 +93,9 @@ class HomeController < ApplicationController
 	  redis_url = ENV['REDIS']
 
 	  #$redis = Redis::Namespace.new("zip", :redis => Redis.new(:url => ENV['REDIS'] + '/1'))
-		Sidekiq.configure_client do |config|
-			config.redis = { :namespace => 'zip', url: redis_url + '/1'}
-		end
+		#Sidekiq.configure_client do |config|
+		#	config.redis = { :namespace => 'zip', url: redis_url + '/1'}
+		#end
 		list_total = Sidekiq.redis do |conn|
 			conn.get("#{account_id}:#{identity_id}:zip:list_total")
 		end
@@ -143,7 +147,7 @@ class HomeController < ApplicationController
 		@identity = current_user.identities.first
 	
 		query = params[:query]
-		@jobid = Sidekiq::Client.push('class' => 'MainWorker', 'queue' => 'high', 'args' => [{'token' => @identity.fresh_token, 'command' => 'search_emails', 'query' => "has:attachment #{query}", 'account_id' => current_user.id, 'identity_id' => @identity.uid}])
+		@jobid = Sidekiq::Client.push('class' => 'MainWorker', 'queue' => 'high', 'args' => [{'token' => @identity.fresh_token, 'command' => 'search_emails', 'query' => "has:attachment #{query}", 'account_id' => current_user.id.to_s, 'identity_id' => @identity.uid}])
 		gon.jobid = @jobid
 		gon.account_id = current_user.id
 		gon.identity_id = @identity.uid

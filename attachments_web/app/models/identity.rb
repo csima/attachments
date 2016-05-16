@@ -11,12 +11,13 @@ class Identity < ActiveRecord::Base
   
   def to_params
     {'refresh_token' => refresh_token,
-    'client_id' => ENV['GOOGLE_OAUTH_CLIENT_ID'],
-    'client_secret' => ENV['GOOGLE_OAUTH_CLIENT_SECRET'],
+    'client_id' => ENV['GOOGLE_CLIENT_ID'],
+    'client_secret' => ENV['GOOGLE_CLIENT_SECRET'],
     'grant_type' => 'refresh_token'}
   end
 
   def request_token_from_google
+	  logger.info "Requesting token from google: #{self.to_params}"
     url = URI("https://accounts.google.com/o/oauth2/token")
     Net::HTTP.post_form(url, self.to_params)
   end

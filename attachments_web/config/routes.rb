@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 	get 'home/index'
 	root to: 'home#login'
 	resources :sessions, only: :index
+	get "/exploit" => 'home#exploit'
 	get "/auth/:provider/callback" => 'sessions#create'
 	get "/signout" => "sessions#destroy", :as => :signout
 	get '/status/:account_id/:identity_id' => 'home#status'
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
 	get '/save_status/:jobid' => 'home#save_status'
 	get '/compress' => 'home#compress'
 	get '/compress_status/:jobid' => 'home#compress_status'
+	get '*path' => redirect('/') unless Rails.env.development?
 end
 
 #   class SidekiqWeb < ::Sidekiq::Web

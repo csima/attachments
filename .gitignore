@@ -1,6 +1,10 @@
+*.log
+/tmp
 docker-env-dev
 docker-env-prod
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+/attachments_worker/*
+

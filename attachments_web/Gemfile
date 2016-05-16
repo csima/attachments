@@ -17,6 +17,8 @@ gem 'redis-namespace'
 gem 'sinatra', :require => nil
 gem 'lograge'
 gem 'rollbar'
+gem 'remote_syslog_logger'
+gem 'fileutils'
 
 # Use sqlite3 as the database for Active Record
 # Use SCSS for stylesheets

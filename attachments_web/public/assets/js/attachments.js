@@ -25,6 +25,7 @@ function buttonGo() {
 	  	JOBID = gon.jobid;
 	  	ACCOUNT_ID = gon.account_id;
 	  	IDENTITY_ID = gon.identity_id;
+	  	log("jobid:" + JOBID);
 	  	checkStatus();
       }
       
@@ -47,8 +48,7 @@ function buttonGo() {
 		  	 	$('.messages').find('strong').html(result['message_completed_count'] + "<br>of<br>" + result['message_count']);
 		  	 	$('.attachments').find('strong').html(result['attachment_completed_count'] + "<br>of<br>" + result['attachment_count']);
 
-				 if(result['message_completed_count'] == result['message_count'] &&
-				 	result['attachment_completed_count'] == result['attachment_count'] && result['message_count'] > 0) {
+				 if(result['message_completed_count'] == result['message_count'] && result['message_count'] > 0) {
 					 	console.log('done!');
 					 	complete();
 				 } else {
@@ -106,6 +106,7 @@ function buttonGo() {
 			success: function(result) {
 				console.log('response');
 				JOBID = result['jobid'];
+				log("save() jobid:" + JOBID);
 				checkSaveStatus();
 			},
 			error: function() {
@@ -152,11 +153,14 @@ function buttonGo() {
 	  
 	  function saveComplete() {	  
 		  log("saveComplete called");
-		  compress();
+		  compressionComplete();
+		  //compress();
 	  }
 	  
 	  function compressionComplete() {
 		  log("compressionComplete called");
+		  $("#button-href").attr("href","https://s3-us-west-1.amazonaws.com/attachments.storage/" + ACCOUNT_ID + "/" + IDENTITY_ID + ".tgz");
+
 		  $("#circle-compress").toggle();
 		  $("#circles").toggle();
 		  $("#download").toggle();

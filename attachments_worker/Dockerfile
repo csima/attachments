@@ -1,15 +1,7 @@
-FROM ubuntu:16.04
+FROM golang
 
 # Install packages for building ruby
-RUN apt-get update && apt-get install -y --force-yes build-essential \
-	wget git zlib1g-dev libssl-dev libreadline-dev libyaml-dev libxml2-dev libxslt-dev \
-	ruby ruby-dev pigz pv && apt-get clean
-RUN gem install bundler
 
-RUN locale-gen en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US.UTF-8
 
 COPY . /attachments/
 WORKDIR /attachments/

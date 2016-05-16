@@ -444,23 +444,30 @@ class Worker
 	  return result
   end
   
-  def perform(*args)
-	  check_for_cancel
-	  args = args[0]
-	  command = args['command']
-	  token = args['token']	  
-	  @account_id = args['account_id']
-	  @identity_id = args['identity_id']
 
-	  if token.nil? || token.empty?
-		  puts "TOKEN BLANK"
-	  end
-	  
-	  google_initialize(token)
-	  begin
-	  	start(args)
-	  rescue JobCancelException
-	  	return
-	  end
+  def perform(*args)
+		  check_for_cancel
+		  args = args[0]
+		  command = args['command']
+		  token = args['token']	  
+		  @account_id = args['account_id']
+		  @identity_id = args['identity_id']
+	
+		  #GC.start
+		  #before = GC.stat(:total_freed_object)
+	
+		  if token.nil? || token.empty?
+			  puts "TOKEN BLANK"
+		  end
+		  
+		  google_initialize(token)
+		  begin
+		  	start(args)
+		  rescue JobCancelException
+		  	return
+		  end
+	 # GC.start
+	  #after = GC.stat(:total_freed_object)
+	  #puts "Objects Freed: #{after - before}"
   end
 end

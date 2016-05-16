@@ -10,9 +10,9 @@
 	$(document).ready(function() {
 		
 		// Image background
-		//$.vegas({
-        //    src:'assets/img/backgrounds/clouds.jpg'
-        //});
+		$.vegas({
+            src:'assets/img/backgrounds/clouds.jpg'
+        });
 
         $.vegas('overlay', {
             src:'assets/images/06.png'

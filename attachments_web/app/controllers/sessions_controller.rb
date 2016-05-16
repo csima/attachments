@@ -15,6 +15,7 @@ class SessionsController < ApplicationController
 	  end
 	
 	  if signed_in?
+		  logger.info "User is signed in. #{current_user}"
 	    if @identity.user == current_user
 	      # User is signed in so they are trying to link an identity with their
 	      # account. But we found the identity and the user associated with it 
@@ -22,6 +23,7 @@ class SessionsController < ApplicationController
 	      # this user. So let's display an error message.
 	      redirect_to root_url, notice: "Already linked that account!"
 	    else
+	    	logger.info "Adding new identity to account"
 	      # The identity is not associated with the current_user so lets 
 	      # associate the identity
 	      @identity.user = current_user
@@ -32,10 +34,13 @@ class SessionsController < ApplicationController
 	    if @identity.user.present?
 	      # The identity we found had a user associated with it so let's 
 	      # just log them in here
+	      logger.info "Identity found with associated user. #{@identity.inspect}"
 	      refresh_token = auth["credentials"]["refresh_token"]
 	      if refresh_token.nil? == false || refresh_token.blank? == false
+		      logger.info "Found new refresh_token. Updating account with refresh_token #{refresh_token}"
 	      	@identity.refresh_token = refresh_token
 	      	@identity.save
+	      	logger.info "Identity is now: #{@identity.inspect}"
      	  end
 	      
 	      self.current_user = @identity.user
@@ -43,6 +48,7 @@ class SessionsController < ApplicationController
 	    else
 	      # No user associated with the identity so we need to create a new one
 	      #redirect_to new_user_url, notice: "Please finish registering"
+	      logger.info "No user associated with the identity so we need to create a new one"
 	      create_user(auth)
 	      @identity.user = current_user
 	      @identity.save()

@@ -6,6 +6,7 @@ require 'google/api_client'
 require 'aws-sdk'
 require 'remote_syslog_logger'
 require 'rollbar'
+require 'newrelic_rpm'
 
 S3_URL = ENV['S3_URL']
 S3_BUCKET = ENV['S3_BUCKET']
