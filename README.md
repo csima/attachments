@@ -12,5 +12,5 @@ The project is built on top of Sidekiq for fast processing and on a good connect
 Each component has an individual Dockerfile for easy setup and deployment. 
 **Important Note:** edit the required-configuration.env file in each folder and supply the appropriate environment variables - otherwise everything will puke. Make sure you set these variables in the Docker container.
 
-In order to make this project work you have to sign up for a google developers account and walk thru creating a an app. Tutorial is here: https://developers.google.com/gmail/api/auth/about-auth#why_use_google_for_authentication 
+In order to make this project work you have to sign up for a google developers account and walk thru creating an app. Tutorial is here: https://developers.google.com/gmail/api/auth/about-auth#why_use_google_for_authentication 
 You will also need an S3 location and of course the appropriate access keys etc to rw to s3.
