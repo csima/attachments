@@ -8,14 +8,7 @@ class MainWorker < Worker
 		logger.info "MainWorker start: account_id:#{account_id} identity_id:#{identity_id}"
 		s3 = AmazonS3Client.new(AWS_ACCESSKEY, AWS_SECRETKEY, AWS_REGION, S3_URL, S3_BUCKET)
 		s3.s3_mass_delete("#{account_id}/#{identity_id}/")
-#  		prefix = "#{account_id}:#{identity_id}"
-#  
-# 		Sidekiq.redis{|conn| conn.del("#{prefix}:cancel")}
-# 		Sidekiq.redis{|conn| conn.del("#{prefix}:messageids")}
-# 		Sidekiq.redis{|conn| conn.del("#{prefix}:attachmentids")}
-# 		Sidekiq.redis{|conn| conn.del("#{prefix}:messageids_list")}
-# 		Sidekiq.redis{|conn| conn.del("#{prefix}:attachmentids_list")}
-	  
+
 		logger.info "Searching messages for attachments.."
 		message_ids = search_emails(query)
 		logger.info "Found #{message_ids.count} messages"

@@ -6,7 +6,6 @@ Rails.application.routes.draw do
 	get 'home/index'
 	root to: 'home#login'
 	resources :sessions, only: :index
-	get "/exploit" => 'home#exploit'
 	get "/auth/:provider/callback" => 'sessions#create'
 	get "/signout" => "sessions#destroy", :as => :signout
 	get '/status/:account_id/:identity_id' => 'home#status'
