@@ -2,21 +2,13 @@ package main
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	b64 "encoding/base64"
-	//"github.com/aws/aws-sdk-go/aws/awserr"
-	//"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/aws/session"
-   	"gopkg.in/redis.v3"
-	"strings"
 	"fmt"
-	"bytes"
 	"os"
-	"bufio"
 	"log"
-	"reflect"
-	"time"
+	"bytes"
 )
 
 func setupAmazon() *s3.S3 {
@@ -38,6 +30,7 @@ func s3Upload(svc *s3.S3, bucket string, filename string, data []byte, date stri
 	            Bucket:         aws.String(bucket),
 	            Key:            aws.String(filename),
 	            Body:         bytes.NewReader(data),
+                ACL:           aws.String("public-read"),
 	            Metadata: map[string]*string{
                          "Date": aws.String(date), //required
                 },
